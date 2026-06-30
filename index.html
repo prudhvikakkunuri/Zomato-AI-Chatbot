@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zomi AI — Zomato Food Ordering Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #050608;
+    --panel: rgba(255,255,255,0.035);
+    --panel-border: rgba(255,255,255,0.08);
+    --panel-hover: rgba(255,76,77,0.07);
+    --text: #eef0f2;
+    --text-dim: #848a93;
+    --accent: #ff4c4d;
+    --accent-glow: rgba(255,76,77,0.55);
+    --grid-line: rgba(255,255,255,0.04);
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,76,77,0.14), transparent 60%),
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/48px 48px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/48px 48px,
+      var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1.6;
+  }
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a{ color: inherit; }
+
+  /* ---------- NAV ---------- */
+  header{
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(5,6,8,0.7);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .nav{ display:flex; justify-content: space-between; align-items:center; padding: 16px 0; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:15px; }
+  .brand .dot{ width:8px;height:8px;border-radius:2px; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+  .nav-links{ display:flex; gap: 28px; }
+  .nav-links a{ color: var(--text-dim); text-decoration:none; font-size:13px; font-family:'JetBrains Mono'; }
+  .nav-links a:hover{ color: var(--accent); }
+  .nav-status{
+    font-family:'JetBrains Mono'; font-size: 11px; color: var(--text-dim);
+    display:flex; align-items:center; gap:6px;
+  }
+  .nav-status .led{ width:6px;height:6px;border-radius:50%; background:#3ddc84; box-shadow:0 0 6px #3ddc84; }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding: 96px 0 70px; text-align:center; }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono'; font-size: 12px; color: var(--text-dim);
+    border: 1px solid var(--panel-border); background: var(--panel);
+    padding: 7px 14px; border-radius: 100px; margin-bottom: 28px;
+  }
+  .badge .led{ width:6px;height:6px;border-radius:50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+  h1{
+    font-size: clamp(36px, 5.4vw, 60px); font-weight: 700;
+    line-height: 1.08; letter-spacing: -1px; max-width: 800px; margin: 0 auto;
+  }
+  h1 .glow-text{
+    color: var(--accent);
+    text-shadow: 0 0 30px var(--accent-glow);
+  }
+  .lede{ margin: 24px auto 0; font-size: 17px; color: var(--text-dim); max-width: 540px; }
+  .cta-row{ display:flex; gap: 14px; justify-content:center; margin-top: 36px; flex-wrap: wrap; }
+  .btn{
+    font-family:'JetBrains Mono'; font-size: 14px; font-weight:500; padding: 13px 24px;
+    border-radius: 8px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .btn-primary{
+    background: var(--accent); color: #1a0203; font-weight: 700;
+    box-shadow: 0 0 24px -4px var(--accent-glow);
+  }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 0 36px -2px var(--accent-glow); }
+  .btn-secondary{ border: 1px solid var(--panel-border); background: var(--panel); color: var(--text); }
+  .btn-secondary:hover{ border-color: var(--accent); transform: translateY(-2px); }
+
+  .stack-row{ margin-top: 44px; display:flex; gap:10px; justify-content:center; flex-wrap: wrap; }
+  .tag{
+    font-family:'JetBrains Mono'; font-size: 12px; color: var(--text-dim);
+    border: 1px solid var(--panel-border); padding: 6px 13px; border-radius: 100px;
+  }
+
+  /* ---------- SECTION ---------- */
+  section{ padding: 80px 0; border-top: 1px solid var(--panel-border); }
+  .section-head{ text-align:center; max-width: 600px; margin: 0 auto 50px; }
+  .eyebrow{
+    font-family:'JetBrains Mono'; font-size: 12px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px;
+  }
+  h2{ font-size: clamp(26px, 3.4vw, 34px); font-weight: 700; }
+  .section-sub{ margin-top: 12px; color: var(--text-dim); font-size: 15.5px; }
+
+  /* ---------- GLASS PANEL BASE ---------- */
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    transition: border-color .2s ease, background .2s ease, transform .2s ease;
+  }
+  .panel:hover{ border-color: rgba(255,76,77,0.4); background: var(--panel-hover); }
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items:center; }
+  .about-grid p{ color: var(--text-dim); font-size: 15.5px; }
+  .about-grid p + p{ margin-top: 14px; }
+  .stat-card{ padding: 26px; }
+  .stat-row{ display:flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--panel-border); }
+  .stat-row:last-child{ border-bottom:none; }
+  .stat-row .label{ color: var(--text-dim); font-size: 13.5px; font-family:'JetBrains Mono'; }
+  .stat-row .value{ font-family:'JetBrains Mono'; font-size: 13.5px; color: var(--accent); }
+
+  /* ---------- CHAT MOCK ---------- */
+  .chat-mock{ padding: 26px; max-width: 640px; margin: 0 auto; }
+  .bubble{ display:flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+  .bubble:last-child{ margin-bottom:0; }
+  .bubble .avatar{
+    width: 30px; height: 30px; border-radius: 7px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--panel-border);
+  }
+  .bubble.user{ flex-direction: row-reverse; text-align: right; }
+  .bubble.user .avatar{ background: rgba(255,76,77,0.15); border-color: rgba(255,76,77,0.3); }
+  .bubble .text{
+    font-size: 14px; color: var(--text); background: rgba(255,255,255,0.04);
+    padding: 12px 16px; border-radius: 10px; border: 1px solid var(--panel-border);
+  }
+  .bubble.user .text{ background: rgba(255,76,77,0.1); border-color: rgba(255,76,77,0.25); }
+
+  /* ---------- PROMPT DESIGN GRID (replaces pipeline) ---------- */
+  .pillars{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .pillar-card{ padding: 22px 18px; position:relative; }
+  .pillar-card .top-row{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 16px; }
+  .pillar-card .num{
+    font-family:'JetBrains Mono'; font-size: 12px; color: var(--accent);
+    width: 28px; height:28px; border-radius: 7px;
+    background: rgba(255,76,77,0.1); border: 1px solid rgba(255,76,77,0.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pillar-card h3{ font-size: 15.5px; font-weight: 600; margin-bottom: 8px; }
+  .pillar-card p{ font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+  /* ---------- FEATURES ---------- */
+  .feature-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .feature{ padding: 24px; }
+  .feature .icon{
+    width: 34px; height:34px; border-radius: 8px;
+    background: rgba(255,76,77,0.1); border: 1px solid rgba(255,76,77,0.25);
+    color: var(--accent); display:flex; align-items:center; justify-content:center;
+    font-size: 15px; margin-bottom: 14px; font-family:'JetBrains Mono';
+  }
+  .feature h3{ font-size: 15.5px; font-weight: 600; margin-bottom: 8px; }
+  .feature p{ font-size: 13.5px; color: var(--text-dim); }
+
+  /* ---------- PROMPT TEMPLATE ---------- */
+  .prompt-box{ padding: 26px; max-width: 760px; margin: 0 auto; }
+  .prompt-box pre{
+    font-family:'JetBrains Mono'; font-size: 12.5px; color: var(--text-dim);
+    white-space: pre-wrap; line-height: 1.7;
+  }
+  .prompt-box pre .hl{ color: var(--accent); }
+
+  /* ---------- LINKS ---------- */
+  .links-grid{ display:flex; gap: 16px; flex-wrap: wrap; }
+  .link-card{
+    flex:1; min-width: 260px; padding: 26px;
+    text-decoration:none; color: var(--text);
+    display:flex; flex-direction:column; gap: 6px;
+  }
+  .link-card .label{ font-family:'JetBrains Mono'; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .link-card .title{ font-size: 17px; font-weight: 700; margin-top: 4px; color: var(--accent); }
+  .link-card .desc{ font-size: 13.5px; color: var(--text-dim); }
+
+  footer{ border-top: 1px solid var(--panel-border); padding: 30px 0; text-align:center; }
+  footer p{ font-family:'JetBrains Mono'; font-size: 12px; color: var(--text-dim); }
+  footer a{ color: var(--accent); text-decoration:none; }
+
+  @media (max-width: 800px){
+    .about-grid{ grid-template-columns: 1fr; }
+    .pillars{ grid-template-columns: 1fr 1fr; }
+    .feature-grid{ grid-template-columns: 1fr; }
+    .nav-links{ display:none; }
+  }
+  @media (max-width: 480px){
+    .pillars{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span> Zomi AI</div>
+    <div class="nav-links">
+      <a href="#about">about</a>
+      <a href="#prompt">prompt design</a>
+      <a href="#features">features</a>
+    </div>
+    <div class="nav-status"><span class="led"></span> system_online</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><span class="led"></span> conversational AI · live on hugging face spaces</div>
+    <h1>Meet Zomi — a <span class="glow-text">food ordering assistant</span> built on prompt engineering alone.</h1>
+    <p class="lede">Zomi recommends restaurants, suggests dishes, and remembers your taste across the conversation — powered entirely by LangChain and a carefully engineered prompt, no fine-tuning required.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://huggingface.co/spaces/prudhvi28x/Zomato-AI-Chatbot" target="_blank">▶ launch_demo</a>
+      <a class="btn btn-secondary" href="https://github.com/prudhvikakkunuri/Zomato-AI-Chatbot" target="_blank">view_source</a>
+    </div>
+    <div class="stack-row">
+      <span class="tag">LangChain</span>
+      <span class="tag">Prompt Engineering</span>
+      <span class="tag">Streamlit</span>
+      <span class="tag">Python</span>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <div class="eyebrow">about</div>
+        <h2>One well-designed prompt, no agents required</h2>
+        <p>Most food-assistant demos lean on heavy multi-agent pipelines or fine-tuned models. Zomi proves that a single, carefully structured prompt — paired with conversation memory — can carry a genuinely useful, on-brand assistant.</p>
+        <p>The entire personality, scope, and behavior of Zomi is defined in one system prompt: what it knows, how it talks, and how it recommends — then LangChain handles the conversational memory on top.</p>
+      </div>
+      <div class="stat-card panel">
+        <div class="stat-row"><span class="label">approach</span><span class="value">prompt_engineering</span></div>
+        <div class="stat-row"><span class="label">framework</span><span class="value">langchain</span></div>
+        <div class="stat-row"><span class="label">interface</span><span class="value">streamlit</span></div>
+        <div class="stat-row"><span class="label">hosting</span><span class="value">hf_spaces</span></div>
+        <div class="stat-row"><span class="label">persona</span><span class="value">zomi</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">in conversation</div>
+      <h2>How Zomi responds</h2>
+      <p class="section-sub">Warm, specific, and food-emoji-friendly — never a wall of text.</p>
+    </div>
+    <div class="chat-mock panel">
+      <div class="bubble user">
+        <div class="avatar">🧑</div>
+        <div class="text">i am hungry</div>
+      </div>
+      <div class="bubble">
+        <div class="avatar">🍔</div>
+        <div class="text">I'm here to help! What are you craving right now? 🍕 🍔 🍜 Or would you like me to suggest some popular options nearby? Let me know your preferences (cuisine, budget, location) to make it easier! 😊</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="prompt">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">prompt design</div>
+      <h2>What the system prompt is doing</h2>
+      <p class="section-sub">Four design pillars baked into a single instruction set.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar-card panel">
+        <div class="top-row"><div class="num">01</div></div>
+        <h3>Scope</h3>
+        <p>Defines exactly what Zomi can help with: recommendations, delivery queries, menus, platform features, and dietary needs.</p>
+      </div>
+      <div class="pillar-card panel">
+        <div class="top-row"><div class="num">02</div></div>
+        <h3>Personality</h3>
+        <p>Warm, concise, and food-emoji-friendly, with instructions to address users by name and reference earlier context.</p>
+      </div>
+      <div class="pillar-card panel">
+        <div class="top-row"><div class="num">03</div></div>
+        <h3>Recommendation style</h3>
+        <p>Always specific — named dishes, price ranges, ratings — with reasoning, and 2-3 options instead of just one.</p>
+      </div>
+      <div class="pillar-card panel">
+        <div class="top-row"><div class="num">04</div></div>
+        <h3>Honest limits</h3>
+        <p>Explicitly told to admit when it lacks live data (order status, wait times) and redirect users to the right place in-app.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">capabilities</div>
+      <h2>What Zomi actually does</h2>
+    </div>
+    <div class="feature-grid">
+      <div class="feature panel">
+        <div class="icon">🍽</div>
+        <h3>Restaurant & dish recommendations</h3>
+        <p>Suggests options by cuisine, rating, budget, or location — with specific dishes and reasoning, not vague suggestions.</p>
+      </div>
+      <div class="feature panel">
+        <div class="icon">🧠</div>
+        <h3>Conversation memory</h3>
+        <p>Remembers preferences mentioned earlier in the chat and proactively applies them to later recommendations.</p>
+      </div>
+      <div class="feature panel">
+        <div class="icon">🥗</div>
+        <h3>Dietary awareness</h3>
+        <p>Understands vegetarian, vegan, gluten-free, Jain, and other dietary preferences when suggesting food.</p>
+      </div>
+      <div class="feature panel">
+        <div class="icon">💬</div>
+        <h3>On-brand tone</h3>
+        <p>Friendly, concise, and enthusiastic about food — built to feel like Zomato's own assistant, not a generic chatbot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">under the hood</div>
+      <h2>The system prompt</h2>
+      <p class="section-sub">The entire behavior of Zomi, defined in one template.</p>
+    </div>
+    <div class="prompt-box panel mono">
+      <pre>You are Zomato's friendly and expert AI food assistant named <span class="hl">"Zomi"</span>.
+
+You help users with:
+- Restaurant recommendations by cuisine, rating, budget, or location
+- Food delivery tracking and order-related queries
+- Menu suggestions and dish recommendations
+- Zomato platform features: Gold/Pro membership, Zomato Pay, Hyperpure, etc.
+- Cuisine knowledge, restaurant reviews, and food trends
+- Dietary preferences: vegetarian, vegan, gluten-free, Jain, etc.
+- Nutritional guidance related to food choices
+
+Personality traits:
+- Warm, enthusiastic, and genuinely passionate about food
+- Concise yet informative - never overly wordy
+- Use food emojis occasionally to keep things fun
+- Always address the user by name if they mention it
+- Reference earlier parts of the conversation to demonstrate memory
+- If the user has mentioned preferences before, proactively apply them
+
+When making recommendations:
+- Be specific (name dishes, mention price ranges, highlight ratings)
+- Explain WHY you are recommending something
+- Offer 2-3 options rather than just one
+
+If asked about real-time data (live order status, current wait times),
+clarify you do not have live access but guide the user on where to
+find that info in the app.</pre>
+    </div>
+  </div>
+</section>
+
+<section id="links">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">explore</div>
+      <h2>Try it or read the code</h2>
+    </div>
+    <div class="links-grid">
+      <a class="link-card panel" href="https://huggingface.co/spaces/prudhvi28x/Zomato-AI-Chatbot" target="_blank">
+        <div class="label">live_demo</div>
+        <div class="title">Hugging Face Spaces →</div>
+        <div class="desc">Chat with Zomi directly in your browser, no setup required.</div>
+      </a>
+      <a class="link-card panel" href="https://github.com/prudhvikakkunuri/Zomato-AI-Chatbot" target="_blank">
+        <div class="label">source_code</div>
+        <div class="title">GitHub Repository →</div>
+        <div class="desc">See the full prompt template and implementation.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Zomi AI · Built by Prudhvi · <a href="https://github.com/prudhvikakkunuri" target="_blank">GitHub</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
