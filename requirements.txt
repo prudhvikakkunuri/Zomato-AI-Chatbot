@@ -1,6 +1,7 @@
 streamlit
 langchain
 langchain-mistralai
+langchain-classis
 mistralai
 dotenv
 
