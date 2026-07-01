@@ -1,7 +1,6 @@
 streamlit
 langchain
 langchain-mistralai
-langchain-classis
 mistralai
 dotenv
 
@@ -9,6 +8,8 @@ dotenv
 langchain
 langchain-core
 langchain-community
+langchain-classis
+
 
 
 # Environment Variable Management
