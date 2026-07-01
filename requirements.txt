@@ -8,7 +8,7 @@ dotenv
 langchain
 langchain-core
 langchain-community
-langchain-classis
+langchain-classic
 
 
 
